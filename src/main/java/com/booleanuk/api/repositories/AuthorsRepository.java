@@ -2,6 +2,8 @@ package com.booleanuk.api.repositories;
 
 
 import com.booleanuk.api.model.Author;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -30,10 +32,22 @@ public class AuthorsRepository {
 	}
 
 	public void addAuthor(Author author){
+		// check if already exists and throw error if it does
+		boolean isInList = authors.stream()
+				.filter(author1 -> author1.getId() == author.getId())
+				.findFirst()
+				.isPresent();
+
+		if (isInList){
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "Already exists");
+		}
+
+
 		authors.add(author);
 	}
 
 	public Author putAuthor(int id, Author author){
+		// add to list
 		for (int i = 0; i < authors.size(); i++) {
 			if(authors.get(i).getId() == id){
 				authors.set(i, author);
@@ -53,7 +67,7 @@ public class AuthorsRepository {
 			return isInList.get();
 		}
 
-		return null;
+		throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found");
 	}
 
 
